@@ -55,6 +55,8 @@ import com.google.android.gms.nearby.messages.SubscribeOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+//Created by bruno.klein on 08/11/2016.
+
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .registerOnSharedPreferenceChangeListener(this);
 
         if (havePermissions()) {
-            //buildGoogleApiClient();
+            buildGoogleApiClient();
         }
     }
 
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    /*private synchronized void buildGoogleApiClient() {
+    private synchronized void buildGoogleApiClient() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Nearby.MESSAGES_API, new MessagesOptions.Builder()
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     .enableAutoManage(this, this)
                     .build();
         }
-    }*/
+    }
 
     @Override
     protected void onPause() {
@@ -194,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "GoogleApiClient connected");
-        //subscribe();
+        subscribe();
     }
 
     @Override
@@ -227,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      * using a {@link Strategy} for BLE scanning. Attaches a {@link ResultCallback} to monitor
      * whether the call to {@code subscribe()} succeeded or failed.
      */
-    /*private void subscribe() {
+    private void subscribe() {
         // In this sample, we subscribe when the activity is launched, but not on device orientation
         // change.
         if (mSubscribed) {
@@ -264,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private Intent getBackgroundSubscribeServiceIntent() {
         return new Intent(this, BackgroundSubscribeIntentService.class);
-    }*/
+    }
 
     /**
      * Displays {@link Snackbar} instructing user to visit Settings to grant permissions required by

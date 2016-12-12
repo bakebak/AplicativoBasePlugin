@@ -29,9 +29,9 @@ import com.google.android.gms.nearby.messages.SubscribeOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by bruno.klein on 16/11/2016.
- */
+
+//Created by bruno.klein on 16/11/2016.
+
 public class BackgroundStartScanService extends IntentService implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -50,13 +50,12 @@ public class BackgroundStartScanService extends IntentService implements GoogleA
 
     private Context context;
 
-    public BackgroundStartScanService() { super("HelloIntentService"); }
+    public BackgroundStartScanService() { super("BackgroundStartScanService"); }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("Script", "Entrou StartScan0");
             buildGoogleApiClient();
-            Log.i("Script", "Entrou StartScan1");
+            Log.i("Script", "Entrou StartScan");
 
             final List<String> cachedMessages = Utils.getCachedMessages(this);
             if (cachedMessages != null) {
@@ -114,9 +113,9 @@ public class BackgroundStartScanService extends IntentService implements GoogleA
 
         SubscribeOptions options = new SubscribeOptions.Builder()
                 .setStrategy(Strategy.BLE_ONLY)
-                .setFilter(new MessageFilter.Builder()
+                /*.setFilter(new MessageFilter.Builder()
                         .includeNamespacedType("edd1ebeac04e5defa017", "candy")
-                        .build())
+                        .build())*/
                 .build();
 
         Nearby.Messages.subscribe(mGoogleApiClient, getPendingIntent(), options)

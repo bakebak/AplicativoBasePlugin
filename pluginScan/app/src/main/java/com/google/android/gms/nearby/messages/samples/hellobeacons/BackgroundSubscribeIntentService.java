@@ -23,13 +23,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+//Created by bruno.klein on 08/11/2016.
 
 /**
  * While subscribed in the background, this service shows a persistent notification with the
@@ -39,8 +43,10 @@ import java.util.List;
 public class BackgroundSubscribeIntentService extends IntentService {
     private static final String TAG = "BackSubIntentService";
 
+    Timer timer = new Timer("");
+    boolean canDelete = true;
+
     private static final int MESSAGES_NOTIFICATION_ID = 1;
-    private static final int NUM_MESSAGES_IN_NOTIFICATION = 5;
 
     public BackgroundSubscribeIntentService() {
         super("BackgroundSubscribeIntentService");
@@ -49,7 +55,6 @@ public class BackgroundSubscribeIntentService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        //updateNotification();
     }
 
     @Override
@@ -58,14 +63,29 @@ public class BackgroundSubscribeIntentService extends IntentService {
             Nearby.Messages.handleIntent(intent, new MessageListener() {
                 @Override
                 public void onFound(Message message) {
+                    canDelete = false;
+                    timer.cancel();
+                    timer.purge();
                     Utils.saveFoundMessage(getApplicationContext(), message);
                     updateNotification();
+                    Log.w(TAG, "Message onFound: " + message);
                 }
 
                 @Override
                 public void onLost(Message message) {
                     Utils.removeLostMessage(getApplicationContext(), message);
-                    updateNotification();
+                    canDelete = true;
+                    timer.schedule(
+                            new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if (canDelete) {
+                                        Log.i("Script", "This'll run 10 seconds later");
+                                        removeNotification();
+                                    }
+                                }
+                            },
+                    10000);
                 }
             });
         }
@@ -82,16 +102,22 @@ public class BackgroundSubscribeIntentService extends IntentService {
                 launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         String contentTitle = getContentTitle(messages);
-        String contentText = getContentText(messages);
+        String contentText = "Deseja abrir a porta?";
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(android.R.drawable.star_on)
+                .setSmallIcon(R.drawable.ic_digitaldesk_big)
                 .setContentTitle(contentTitle)
-                //.setContentText(contentText)
-                //.setStyle(new NotificationCompat.BigTextStyle().bigText(contentText))
-                .setOngoing(true)
+                .setContentText(contentText)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(contentText))
+                .setOngoing(false)
                 .setContentIntent(pi);
         notificationManager.notify(MESSAGES_NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    private void removeNotification(){
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(MESSAGES_NOTIFICATION_ID);
     }
 
     private String getContentTitle(List<String> messages) {
@@ -101,16 +127,7 @@ public class BackgroundSubscribeIntentService extends IntentService {
             case 1:
                 return getResources().getString(R.string.one_message);
             default:
-                return getResources().getString(R.string.many_messages, messages.size());
+                return getResources().getString(R.string.many_messages);
         }
-    }
-
-    private String getContentText(List<String> messages) {
-        String newline = System.getProperty("line.separator");
-        if (messages.size() < NUM_MESSAGES_IN_NOTIFICATION) {
-            return TextUtils.join(newline, messages);
-        }
-        return TextUtils.join(newline, messages.subList(0, NUM_MESSAGES_IN_NOTIFICATION)) +
-                newline + "&#8230;";
     }
 }
